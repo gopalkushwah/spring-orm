@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		">
+		
+<!-- Enabling the transation management for persist(Create,Update,Delete) operations -->
+<tx:annotation-driven/>
+
+	<bean
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		name="ds"
+		p:driverClassName="com.mysql.cj.jdbc.Driver"
+		p:url="jdbc:mysql://localhost:3306/springorm"
+		p:username="root"
+		p:password="1234"
+	/>
+
+	<bean 
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
+		name="sessionFactory"
+	>
+		<property name="dataSource" ref="ds"/>
+		
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		
+		<property name="annotatedClasses">
+			<list>
+				<value>com.springorm.entity.Teacher</value>
+			</list>
+		</property>
+	</bean>
+	<bean 
+		class="org.springframework.orm.hibernate5.HibernateTemplate"
+		name="hibernateTemplate"
+		p:sessionFactory-ref="sessionFactory"
+	/>
+	<bean 
+		class="com.springorm.dao.TeacherDaoImpl"
+		name="teacherDaoImpl"
+		p:hibernateTemplate-ref="hibernateTemplate"
+	/>
+	
+	<bean 
+		class="com.springorm.entity.Teacher"
+		name="teacher"
+		scope="prototype"
+	/>
+	<bean 
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager"
+		name="transactionManager"
+		p:sessionFactory-ref="sessionFactory"
+	/>
+</beans>
